@@ -1,9 +1,9 @@
-"""
-Scheduling algorithms implementation.
-Contains all the CPU scheduling algorithms used in the application.
-"""
+"""Scheduling algorithms implementation."""
 
-def first_come_first_serve(arrival_times, burst_times):
+import numpy as np
+from typing import List, Tuple
+
+def first_come_first_serve(arrival_times: List[float], burst_times: List[float]) -> Tuple[List[Tuple[int, float, float]], float, float]:
     """
     First Come First Serve scheduling algorithm.
     Args:
@@ -13,7 +13,6 @@ def first_come_first_serve(arrival_times, burst_times):
         tuple: (execution_order, avg_turnaround_time, avg_waiting_time)
     """
     num_processes = len(arrival_times)
-
     sorted_processes = sorted(range(num_processes), key=lambda i: arrival_times[i])
 
     current_time = 0
@@ -38,7 +37,7 @@ def first_come_first_serve(arrival_times, burst_times):
 
     return execution_order, avg_turnaround, avg_waiting
 
-def round_robin(arrival_times, burst_times, quantum=2):
+def round_robin(arrival_times: List[float], burst_times: List[float], quantum: float = 2) -> Tuple[List[Tuple[int, float, float]], float, float]:
     """
     Round Robin scheduling algorithm.
     Args:
@@ -99,7 +98,7 @@ def round_robin(arrival_times, burst_times, quantum=2):
     avg_waiting_time = sum(waiting_time) / n
     return execution_order, avg_turnaround_time, avg_waiting_time
 
-def preemptive_srtf(arrival_times, burst_times):
+def preemptive_shortest_remaining_time_first(arrival_times: List[float], burst_times: List[float]) -> Tuple[List[Tuple[int, float, float]], float, float]:
     """
     Preemptive Shortest Remaining Time First scheduling algorithm.
     Args:
@@ -108,9 +107,53 @@ def preemptive_srtf(arrival_times, burst_times):
     Returns:
         tuple: (execution_order, avg_turnaround_time, avg_waiting_time)
     """
-    pass
+    num_processes = len(arrival_times)
+    remaining_burst = burst_times.copy()
+    complete = [False] * num_processes
+    current_time = min(arrival_times)
+    execution_order = []
+    waiting_time = [0] * num_processes
+    turnaround_time = [0] * num_processes
+    processes_completed = 0
+    last_process = -1
 
-def non_preemptive_priority(arrival_times, burst_times, priorities):
+    while processes_completed < num_processes:
+        ready_queue = [i for i in range(num_processes)
+                       if arrival_times[i] <= current_time and not complete[i]]
+
+        if ready_queue:
+            current_process = min(ready_queue, key=lambda i: remaining_burst[i])
+
+            if last_process != current_process:
+                execution_order.append((current_process, current_time))
+            last_process = current_process
+
+            remaining_burst[current_process] -= 0.1
+            remaining_burst[current_process] = max(0, remaining_burst[current_process])
+
+            if remaining_burst[current_process] == 0:
+                complete[current_process] = True
+                processes_completed += 1
+                finish_time = current_time + 0.1
+                turnaround_time[current_process] = finish_time - arrival_times[current_process]
+                waiting_time[current_process] = turnaround_time[current_process] - burst_times[current_process]
+                execution_order[-1] += (finish_time,)
+                last_process = -1
+
+        current_time += 0.1
+        current_time = round(current_time, 2)
+
+    execution_timeline = []
+    for i in range(len(execution_order)):
+        if len(execution_order[i]) == 2:
+            execution_order[i] += (execution_order[i][1] + 0.1,)
+
+    avg_turnaround_time = sum(turnaround_time) / num_processes
+    avg_waiting_time = sum(waiting_time) / num_processes
+
+    return execution_order, avg_turnaround_time, avg_waiting_time
+
+def non_preemptive_priority(arrival_times: List[float], burst_times: List[float], priorities: List[int]) -> Tuple[List[Tuple[int, float, float]], float, float]:
     """
     Non-preemptive Priority scheduling algorithm.
     Args:
@@ -166,61 +209,5 @@ def non_preemptive_priority(arrival_times, burst_times, priorities):
 
     avg_turnaround_time = total_turnaround_time / num_processes
     avg_waiting_time = total_waiting_time / num_processes
-
-    return execution_order, avg_turnaround_time, avg_waiting_time
-
-def preemptive_shortest_remaining_time_first(arrival_times, burst_times):
-    num_processes = len(arrival_times)
-    remaining_burst = burst_times.copy()
-    complete = [False] * num_processes
-    current_time = min(arrival_times)
-    execution_order = []
-    waiting_time = [0] * num_processes
-    turnaround_time = [0] * num_processes
-    processes_completed = 0
-    last_process = -1
-
-    while processes_completed < num_processes:
-        # Find all processes that have arrived and are not completed
-        ready_queue = [i for i in range(num_processes)
-                       if arrival_times[i] <= current_time and not complete[i]]
-
-        if ready_queue:
-            # Pick process with shortest remaining time
-            current_process = min(ready_queue, key=lambda i: remaining_burst[i])
-
-            # If new process starts, log start time
-            if last_process != current_process:
-                execution_order.append((current_process, current_time))
-            last_process = current_process
-
-            # Execute for 0.1 time unit
-            remaining_burst[current_process] -= 0.1
-            remaining_burst[current_process] = max(0, remaining_burst[current_process])  # Avoid negatives
-
-            # If completed
-            if remaining_burst[current_process] == 0:
-                complete[current_process] = True
-                processes_completed += 1
-                finish_time = current_time + 0.1
-                turnaround_time[current_process] = finish_time - arrival_times[current_process]
-                waiting_time[current_process] = turnaround_time[current_process] - burst_times[current_process]
-                execution_order[-1] += (finish_time,)  # Finish current segment
-                last_process = -1  # Reset to detect next process
-        else:
-            last_process = -1  # No process running
-
-        current_time += 0.1
-        current_time = round(current_time, 2)  # Avoid float imprecision
-
-    # Fill in missing end times for execution segments (in case last wasn't closed)
-    execution_timeline = []
-    for i in range(len(execution_order)):
-        if len(execution_order[i]) == 2:
-            # This means a segment started but wasn't closed (very rare)
-            execution_order[i] += (execution_order[i][1] + 0.1,)
-
-    avg_turnaround_time = sum(turnaround_time) / num_processes
-    avg_waiting_time = sum(waiting_time) / num_processes
 
     return execution_order, avg_turnaround_time, avg_waiting_time
