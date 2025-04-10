@@ -1,61 +1,62 @@
-"""
-Helper functions and utilities for the Process Scheduler.
-Contains common functions used across the application.
-"""
+# utils.py
+import customtkinter as ctk
+import os
 
-import random
-import numpy as np
+def show_error(message):
+    ctk.CTkMessagebox(
+        title="Error",
+        message=message,
+        icon="cancel"
+    )
 
-def generate_random_processes(num_processes, arrival_mean=5, arrival_std=2,
-                            burst_mean=3, burst_std=1, priority_lambda=3):
+def save_results_to_file(execution_order, avg_tat, avg_wt, output_file, algorithm_name, arrival_times=None, burst_times=None, priorities=None):
     """
-    Generate random processes for testing.
+    Save the scheduling results to a file.
+    
     Args:
-        num_processes: Number of processes to generate
-        arrival_mean: Mean arrival time
-        arrival_std: Standard deviation of arrival time
-        burst_mean: Mean burst time
-        burst_std: Standard deviation of burst time
-        priority_lambda: Lambda for priority generation
-    Returns:
-        list: List of Process objects
+        execution_order (list): List of tuples (process_id, start_time, end_time)
+        avg_tat (float): Average turnaround time
+        avg_wt (float): Average waiting time
+        output_file (str): Path to the output file
+        algorithm_name (str): Name of the algorithm used
+        arrival_times (list, optional): List of arrival times
+        burst_times (list, optional): List of burst times
+        priorities (list, optional): List of priorities
     """
-    from models import Process
+    # Check if file exists to determine if we need to write the header
+    file_exists = os.path.exists(output_file)
     
-    arrival_times = np.random.normal(arrival_mean, arrival_std, num_processes)
-    burst_times = np.random.normal(burst_mean, burst_std, num_processes)
-    priorities = np.random.poisson(priority_lambda, num_processes)
-    
-    # Ensure all values are positive
-    arrival_times = np.abs(arrival_times)
-    burst_times = np.abs(burst_times)
-    priorities = np.abs(priorities)
-    
-    # Create Process objects
-    processes = []
-    for i in range(num_processes):
-        processes.append(Process(
-            pid=i+1,
-            arrival_time=arrival_times[i],
-            burst_time=burst_times[i],
-            priority=priorities[i]
-        ))
-    
-    return processes
-
-def calculate_metrics(processes):
-    """
-    Calculate average turnaround and waiting times.
-    Args:
-        processes: List of Process objects
-    Returns:
-        tuple: (avg_turnaround_time, avg_waiting_time)
-    """
-    if not processes:
-        return 0, 0
+    with open(output_file, 'a' if file_exists else 'w') as f:
+        # Write header information if this is the first algorithm
+        if not file_exists and arrival_times is not None and burst_times is not None:
+            f.write(f"Number of processes: {len(arrival_times)}\n\n")
+            
+            # Write process details table
+            f.write("ID   ArrivalTime  BurstTime  Priority\n")
+            for i in range(len(arrival_times)):
+                priority = priorities[i] if priorities is not None else 0
+                f.write(f"{i+1:<4} {arrival_times[i]:<12.1f} {burst_times[i]:<10.1f} {priority:<10}\n")
+            f.write("\n")
         
-    total_turnaround = sum(p.turnaround_time for p in processes)
-    total_waiting = sum(p.waiting_time for p in processes)
-    n = len(processes)
-    
-    return total_turnaround/n, total_waiting/n 
+        # Write algorithm results
+        f.write(f"=== {algorithm_name} ===\n")
+        f.write("Process Execution Order:\n")
+        
+        # Group consecutive executions of the same process
+        if execution_order:
+            current_pid, current_start, current_end = execution_order[0]
+            for pid, start, end in execution_order[1:]:
+                if pid == current_pid and start == current_end:
+                    # Same process continues immediately
+                    current_end = end
+                else:
+                    # Different process or gap in execution
+                    f.write(f"P{current_pid+1} ({current_start:.1f} - {current_end:.1f})\n")
+                    current_pid, current_start, current_end = pid, start, end
+            
+            # Write the last process
+            f.write(f"P{current_pid+1} ({current_start:.1f} - {current_end:.1f})\n")
+        
+        f.write("\nPerformance Metrics:\n")
+        f.write(f"Average Turnaround Time: {avg_tat:.2f}\n")
+        f.write(f"Average Waiting Time: {avg_wt:.2f}\n\n\n")

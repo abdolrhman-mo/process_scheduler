@@ -113,7 +113,7 @@ To extend the application:
 
 ## Team Contributions
 
-### Mohamed Matarawy
+### Mohamed
 - Developed the complete GUI from start to finish
 - Integrated and collected code from all team members
 - Managed the overall project structure and implementation
@@ -123,11 +123,11 @@ To extend the application:
 - Implemented Preemptive Shortest Remaining Time First (SRTF) algorithm
 <!-- - Our main Engineer -->
 
-### Melisso
+### Melissia
 - Implemented Non-preemptive Priority Scheduling algorithm
 
-### Abdelrahman Makady
-- Developed input & output file handling
+### Abdelrahman
+<!-- - Developed input & output file handling -->
 <!-- - Implemented random value generation for the basic table -->
 - Implemented First Come First Serve (FCFS) algorithm
 
