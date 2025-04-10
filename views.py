@@ -4,6 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from typing import Callable, List, Tuple, Optional, Dict, Any
 import numpy as np
+from utils import configure_treeview_styles
 
 class InputTab(ctk.CTkFrame):
     def __init__(self, master, on_generate: Callable, on_run: Callable, **kwargs):
@@ -32,7 +33,7 @@ class InputTab(ctk.CTkFrame):
             button_frame,
             text="Generate Processes",
             command=self.on_generate
-        ).pack(side="left", padx=10)
+        ).pack(side="left")
 
         ctk.CTkButton(
             button_frame,
@@ -46,33 +47,24 @@ class InputTab(ctk.CTkFrame):
             values=["FCFS", "Round Robin", "Preemptive SRTF", "Priority Scheduling"],
             variable=self.algorithm_var
         )
-        self.algorithm_menu.pack(side="left", padx=10)
+        self.algorithm_menu.pack(side="left")
 
-        # Process table
+        # Now create your Treeview
         self.tree = ttk.Treeview(
             self,
             columns=("ID", "Arrival", "Burst", "Priority"),
-            show="headings"
+            show="headings",
+            style="Enhanced.Treeview"
         )
+
+
         self.tree.heading("ID", text="Process ID")
         self.tree.heading("Arrival", text="Arrival Time")
         self.tree.heading("Burst", text="Burst Time")
         self.tree.heading("Priority", text="Priority")
         self.tree.pack(fill="both", expand=True, padx=20, pady=10)
 
-        # Configure styles
-        style = ttk.Style()
-        style.theme_use("default")
-        style.configure("Treeview",
-                      background="#2b2b2b",
-                      foreground="white",
-                      fieldbackground="#2b2b2b",
-                      rowheight=25,
-                      font=('Segoe UI', 12))
-        style.configure("Treeview.Heading",
-                      background="#1f1f1f",
-                      foreground="white",
-                      font=('Segoe UI', 13, 'bold'))
+        configure_treeview_styles(self.tree)
 
     def update_process_table(self, arrival_times, burst_times, priorities):
         self.tree.delete(*self.tree.get_children())
@@ -102,7 +94,8 @@ class ResultsTab(ctk.CTkFrame):
         self.tree = ttk.Treeview(
             self,
             columns=("ID", "Arrival", "Start", "End", "Turnaround"),
-            show="headings"
+            show="headings",
+            style="Enhanced.Treeview"
         )
         self.tree.heading("ID", text="Process ID")
         self.tree.heading("Arrival", text="Arrival Time")
@@ -115,18 +108,7 @@ class ResultsTab(ctk.CTkFrame):
         self.avg_label = ctk.CTkLabel(self, text="", font=ctk.CTkFont(size=14))
         self.avg_label.pack(pady=10)
 
-        # Configure styles
-        style = ttk.Style()
-        style.configure("Treeview",
-                      background="#2b2b2b",
-                      foreground="white",
-                      fieldbackground="#2b2b2b",
-                      rowheight=25,
-                      font=('Segoe UI', 12))
-        style.configure("Treeview.Heading",
-                      background="#1f1f1f",
-                      foreground="white",
-                      font=('Segoe UI', 13, 'bold'))
+        configure_treeview_styles(self.tree)
 
     def display_results(self, results: List[Tuple[int, float, float, float, float]]):
         self.tree.delete(*self.tree.get_children())
@@ -196,7 +178,8 @@ class ComparisonTab(ctk.CTkFrame):
             main_frame,
             columns=("algorithm", "avg_tat", "avg_wt", "throughput"),
             show="headings",
-            height=5
+            height=5,
+            style="Enhanced.Treeview"
         )
         
         # Table headers
@@ -229,19 +212,7 @@ class ComparisonTab(ctk.CTkFrame):
         )
         self.run_btn.pack(pady=10)
         
-        # Style configuration
-        style = ttk.Style()
-        style.theme_use("default")
-        style.configure("Treeview",
-                      background="#2b2b2b",
-                      foreground="white",
-                      fieldbackground="#2b2b2b",
-                      rowheight=30,
-                      font=('Arial', 12))
-        style.configure("Treeview.Heading",
-                      background="#1f6aa5",
-                      foreground="white",
-                      font=('Arial', 13, 'bold'))
+        configure_treeview_styles(self.results_table)
     
     def run_comparison(self):
         """Run all algorithms and display comparison results"""

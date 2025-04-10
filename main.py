@@ -43,7 +43,7 @@ class ProcessSchedulerApp(ctk.CTk):
     def create_widgets(self):
         # Tabview يجب أن تكون أول عنصر يتم حزمه
         self.tabview = ctk.CTkTabview(master=self)
-        self.tabview.pack(fill="both", expand=True, padx=10, pady=10)
+        self.tabview.pack(fill="both", expand=True)
         
         # إضافة علامات التبويب أولاً
         self.tabview.add("Input")

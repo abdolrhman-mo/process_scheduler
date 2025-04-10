@@ -3,10 +3,12 @@
 import customtkinter as ctk
 import os
 from typing import List, Tuple, Optional
+from tkinter import ttk
+from CTkMessagebox import CTkMessagebox
 
 def show_error(message: str):
     """Show error message dialog."""
-    ctk.CTkMessagebox(
+    CTkMessagebox(
         title="Error",
         message=message,
         icon="cancel"
@@ -64,3 +66,46 @@ def save_results_to_file(
         f.write("\nPerformance Metrics:\n")
         f.write(f"Average Turnaround Time: {avg_tat:.2f}\n")
         f.write(f"Average Waiting Time: {avg_wt:.2f}\n\n\n")
+
+def configure_treeview_styles(tree):
+    # Configure the Treeview style
+    style = ttk.Style()
+    style.theme_use('default')
+
+    # Main treeview style
+    style.configure("Enhanced.Treeview",
+        background="#3b3b3b",
+        foreground="white",
+        rowheight=38,
+        fieldbackground="#2a2d2e",
+        bordercolor="#3b3b3b",
+        borderwidth=0,
+        font=('Segoe UI', 12),
+        padding=(10, 5),
+        anchor="center"                
+    )
+
+    # Header style with enhanced padding
+    style.configure("Enhanced.Treeview.Heading",
+        background="#1a1a1a",
+        foreground="white",
+        relief="flat",
+        font=('Segoe UI', 12, 'bold'),
+        padding=(12, 8),
+        anchor="center"
+    )
+
+    # Selected row styling
+    style.map("Enhanced.Treeview",
+        background=[('selected', '#3b3b3b')], # Same color
+        foreground=[('selected', 'white')]
+    )
+
+    style.map("Enhanced.Treeview.Heading",
+        background=[('hover', '#3b3b3b')]
+    )
+
+    # This is what actually centers the cell content
+    for col in tree["columns"]:
+        tree.column(col, anchor="center")
+        tree.heading(col, anchor="center")
