@@ -2,9 +2,9 @@
 
 A CPU scheduling simulator with a graphical user interface that implements various scheduling algorithms.
 
-## Overview
+<!-- ## Overview
 
-This application simulates CPU scheduling algorithms to help understand how different scheduling policies affect process execution and system performance. It provides a visual representation of process execution and calculates key performance metrics.
+This application simulates CPU scheduling algorithms to help understand how different scheduling policies affect process execution and system performance. It provides a visual representation of process execution and calculates key performance metrics. -->
 
 ## Features
 
@@ -17,11 +17,11 @@ This application simulates CPU scheduling algorithms to help understand how diff
 - **Performance Metrics**:
   - Average Turnaround Time
   - Average Waiting Time
-  - Process Execution Timeline
+  <!-- - Process Execution Timeline -->
 
-- **Process Generation**:
+<!-- - **Process Generation**:
   - Manual process entry
-  - Random process generation with configurable parameters
+  - Random process generation with configurable parameters -->
 
 ## Project Structure
 
@@ -63,7 +63,7 @@ process_scheduler/
 
 1. **Setup**:
    - Ensure Python 3.6+ is installed
-   - Install required packages: `pip install customtkinter numpy`
+   - Install required packages: `pip install customtkinter numpy matplotlib`
 
 2. **Running the Application**:
    - Navigate to the project directory
@@ -73,9 +73,9 @@ process_scheduler/
    - Enter process details or generate random processes
    - Select a scheduling algorithm
    - Click "Run" to see the results
-   - View performance metrics and execution timeline
+   - View results in results tab or output.txt file
 
-## Scheduling Algorithms
+<!-- ## Scheduling Algorithms
 
 ### First Come First Serve (FCFS)
 - Processes are executed in the order they arrive
@@ -102,7 +102,7 @@ process_scheduler/
 - **Turnaround Time**: Total time from arrival to completion
 - **Waiting Time**: Time spent waiting in ready queue
 - **Average Turnaround Time**: Sum of turnaround times / number of processes
-- **Average Waiting Time**: Sum of waiting times / number of processes
+- **Average Waiting Time**: Sum of waiting times / number of processes -->
 
 ## Development
 
@@ -116,3 +116,4 @@ To extend the application:
 - Python 3.6+
 - customtkinter
 - numpy 
+- matplotlib
