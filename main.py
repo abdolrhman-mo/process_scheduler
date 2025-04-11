@@ -2,6 +2,7 @@
 import customtkinter as ctk  # Enhanced UI library
 import os
 import numpy as np
+import sys
 from algorithms import (  # Import scheduling algorithms
     first_come_first_serve,
     round_robin,
@@ -10,6 +11,7 @@ from algorithms import (  # Import scheduling algorithms
 )
 from views import InputTab, ResultsTab, VisualizationTab, ComparisonTab  # UI components
 from utils import show_error, save_results_to_file  # Helper functions
+import matplotlib.pyplot as plt
 
 class ProcessSchedulerApp(ctk.CTk):
     def __init__(self):
@@ -32,6 +34,9 @@ class ProcessSchedulerApp(ctk.CTk):
         self.data_dir = os.path.join(os.path.dirname(__file__), "data")
         os.makedirs(self.data_dir, exist_ok=True)
         
+        # Set up window closing protocol
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
         # Available scheduling algorithms
         self.algorithms = {
             "FCFS": first_come_first_serve,
@@ -41,6 +46,14 @@ class ProcessSchedulerApp(ctk.CTk):
         }
         
         self.create_widgets()  # Build the UI
+    
+    def on_closing(self):
+        """Handle window closing event"""
+        # Clean up any resources if needed
+        if hasattr(self, 'visualization_tab'):
+            plt.close('all')  # Close any matplotlib figures
+        self.destroy()  # Destroy the window
+        sys.exit()  # Exit the application
     
     def create_widgets(self):
         """Create all UI components"""
