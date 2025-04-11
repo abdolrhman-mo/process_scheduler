@@ -1,38 +1,34 @@
 """Main application entry point for the Process Scheduler."""
-import customtkinter as ctk  # Enhanced UI library
+
+import customtkinter as ctk
 import os
 import numpy as np
-from algorithms import (  # Import scheduling algorithms
+from algorithms import (
     first_come_first_serve,
     round_robin,
     preemptive_shortest_remaining_time_first,
     non_preemptive_priority
 )
-from views import InputTab, ResultsTab, VisualizationTab, ComparisonTab  # UI components
-from utils import show_error, save_results_to_file  # Helper functions
+from views import InputTab, ResultsTab, VisualizationTab, ComparisonTab
+from utils import show_error, save_results_to_file
 
 class ProcessSchedulerApp(ctk.CTk):
     def __init__(self):
-        super().__init__()  # Initialize parent class
+        super().__init__()
         
-        # Configure main window
         self.title("Process Scheduling Simulator")
         self.geometry("1200x800")
         
-        # Set dark mode and green theme
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("green")
         
-        # Initialize process data storage
         self.arrival_times = None
         self.burst_times = None
         self.priorities = None
         
-        # Create data directory if not exists
         self.data_dir = os.path.join(os.path.dirname(__file__), "data")
         os.makedirs(self.data_dir, exist_ok=True)
         
-        # Available scheduling algorithms
         self.algorithms = {
             "FCFS": first_come_first_serve,
             "Round Robin": round_robin,
@@ -40,21 +36,17 @@ class ProcessSchedulerApp(ctk.CTk):
             "Priority Scheduling": non_preemptive_priority
         }
         
-        self.create_widgets()  # Build the UI
+        self.create_widgets()
     
     def create_widgets(self):
-        """Create all UI components"""
-        # Create tabbed interface
         self.tabview = ctk.CTkTabview(master=self)
         self.tabview.pack(fill="both", expand=True)
         
-        # Add tabs
         self.tabview.add("Input")
         self.tabview.add("Results") 
         self.tabview.add("Visualization")
         self.tabview.add("Comparison")
         
-        # Initialize each tab with its content
         self.input_tab = InputTab(
             master=self.tabview.tab("Input"),
             on_generate=self.generate_processes
@@ -75,27 +67,23 @@ class ProcessSchedulerApp(ctk.CTk):
             master=self.tabview.tab("Comparison"), 
             algorithms=self.algorithms
         )
-
+    
     def generate_processes(self):
-        """Generate random processes using normal distribution"""
         try:
             input_file = os.path.join(self.data_dir, "input.txt")
-            # Read configuration from file
             with open(input_file) as file:
                 num_processes = int(file.readline())
                 arrival_mean, arrival_sd = map(float, file.readline().split())
                 burst_mean, burst_sd = map(float, file.readline().split())
                 priority_lambda = float(file.readline())
 
-            # Generate random process data
             self.arrival_times = np.abs(np.random.normal(arrival_mean, arrival_sd, num_processes))
             self.burst_times = np.abs(np.random.normal(burst_mean, burst_sd, num_processes))
             self.priorities = np.abs(np.random.poisson(priority_lambda, num_processes))
 
-            # Update input tab display
             self.input_tab.update_process_table(self.arrival_times, self.burst_times, self.priorities)
 
-            # Update comparison data
+            # Update comparison tab with new data
             self.comparison_tab.update_data(
                 self.arrival_times.tolist(),
                 self.burst_times.tolist(),
@@ -106,7 +94,6 @@ class ProcessSchedulerApp(ctk.CTk):
             show_error(f"Error reading from {input_file}: {str(e)}")
 
     def run_selected_algorithm(self):
-        """Execute the selected scheduling algorithm"""
         if self.arrival_times is None:
             show_error("Please generate processes first.")
             return
@@ -117,7 +104,7 @@ class ProcessSchedulerApp(ctk.CTk):
         if os.path.exists(output_file):
             os.remove(output_file)
         
-        # Run all algorithms for comparison
+        # Run all algorithms and save results
         self.run_algorithm("First Come First Serve", first_come_first_serve, 
                           self.arrival_times.tolist(), self.burst_times.tolist())
         
@@ -130,7 +117,7 @@ class ProcessSchedulerApp(ctk.CTk):
         self.run_algorithm("Preemptive Shortest Remaining Time First", preemptive_shortest_remaining_time_first,
                           self.arrival_times.tolist(), self.burst_times.tolist())
         
-        # Run selected algorithm for display
+        # Run the selected algorithm for display
         if selected_algorithm == "FCFS":
             execution_order, avg_tat, avg_wt = first_come_first_serve(self.arrival_times.tolist(), self.burst_times.tolist())
         elif selected_algorithm == "Round Robin":
@@ -148,10 +135,12 @@ class ProcessSchedulerApp(ctk.CTk):
             turnaround = end - arrival
             results.append((i, arrival, start, end, turnaround))
         
-        # Update all views
+        # Update the views
         self.results_tab.display_results(results)
         self.results_tab.update_averages(avg_tat, avg_wt)
         self.visualization_tab.update_visualization(execution_order, selected_algorithm)
+        
+        # Update comparison tab
         self.comparison_tab.update_data(
             self.arrival_times.tolist(),
             self.burst_times.tolist(),
@@ -159,7 +148,6 @@ class ProcessSchedulerApp(ctk.CTk):
         )
     
     def run_algorithm(self, algorithm_name, algorithm_func, *args):
-        """Run a specific algorithm and save results"""
         execution_order, avg_tat, avg_wt = algorithm_func(*args)
         output_file = os.path.join(self.data_dir, "output.txt")
         
@@ -175,5 +163,5 @@ class ProcessSchedulerApp(ctk.CTk):
         )
 
 if __name__ == "__main__":
-    app = ProcessSchedulerApp()  # Create application instance
-    app.mainloop()  # Start the event loop
+    app = ProcessSchedulerApp()
+    app.mainloop()
