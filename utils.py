@@ -14,6 +14,26 @@ def show_error(message: str):
         icon="cancel"
     )
 
+def create_title(parent, text, font_size=18):
+    """
+    Create a consistent title label for tabs.
+    
+    Args:
+        parent: The parent widget
+        text: The title text
+        font_size: Font size for the title (default: 18)
+    
+    Returns:
+        The created title label widget
+    """
+    title_label = ctk.CTkLabel(
+        parent,
+        text=text,
+        font=ctk.CTkFont(size=font_size, weight="bold")
+    )
+    title_label.pack(pady=10)
+    return title_label
+
 def save_results_to_file(
     execution_order: List[Tuple[int, float, float]],
     avg_tat: float,

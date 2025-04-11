@@ -54,12 +54,18 @@ class ProcessSchedulerApp(ctk.CTk):
         # ثم إنشاء محتوى كل تبويب
         self.input_tab = InputTab(
             master=self.tabview.tab("Input"),
-            on_generate=self.generate_processes,
-            on_run=self.run_selected_algorithm
+            on_generate=self.generate_processes
         )
         
-        self.results_tab = ResultsTab(master=self.tabview.tab("Results"))
-        self.visualization_tab = VisualizationTab(master=self.tabview.tab("Visualization"))
+        self.results_tab = ResultsTab(
+            master=self.tabview.tab("Results"),
+            on_run=self.run_selected_algorithm
+        )
+        self.visualization_tab = VisualizationTab(
+            master=self.tabview.tab("Visualization"),
+            algorith_var=self.results_tab.algorithm_var,
+            on_run=self.run_selected_algorithm
+        )
         self.comparison_tab = ComparisonTab(master=self.tabview.tab("Comparison"), algorithms=self.algorithms)
     
     def generate_processes(self):
@@ -80,12 +86,14 @@ class ProcessSchedulerApp(ctk.CTk):
         except Exception as e:
             show_error(f"Error reading from {input_file}: {str(e)}")
 
+
     def run_selected_algorithm(self):
+        """Algorithm Execution and Display Results"""
         if self.arrival_times is None:
             show_error("Please generate processes first.")
             return
 
-        selected_algorithm = self.input_tab.get_selected_algorithm()
+        selected_algorithm = self.results_tab.get_selected_algorithm()
         output_file = os.path.join(self.data_dir, "output.txt")
         
         # Clear the output file if it exists

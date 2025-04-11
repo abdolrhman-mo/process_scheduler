@@ -4,25 +4,25 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from typing import Callable, List, Tuple, Optional, Dict, Any
 import numpy as np
-from utils import configure_treeview_styles
+from utils import configure_treeview_styles, create_title
+
+ALGORITHMS = ["FCFS", "Round Robin", "Preemptive SRTF", "Priority Scheduling"]
+
+def create_algorithm_controls(self, parent, on_run: Callable, algorithm_var: ctk.StringVar):
+    ctk.CTkButton(parent, text="Run Algorithm", command=on_run).pack(side="left", padx=10)
+    ctk.CTkOptionMenu(parent, values=ALGORITHMS, variable=algorithm_var).pack(side="left")
+
 
 class InputTab(ctk.CTkFrame):
-    def __init__(self, master, on_generate: Callable, on_run: Callable, **kwargs):
+    def __init__(self, master, on_generate: Callable, **kwargs):
         super().__init__(master, **kwargs)
         self.on_generate = on_generate
-        self.on_run = on_run
-        self.algorithm_var = ctk.StringVar(value="FCFS")
         self.create_widgets()
         self.pack(fill="both", expand=True)
     
     def create_widgets(self):
-        # Information label
-        info_label = ctk.CTkLabel(
-            self,
-            text="Enter data in input.txt",
-            font=ctk.CTkFont(size=14)
-        )
-        info_label.pack(pady=10)
+        # Create title
+        create_title(self, "Process input.txt")
 
         # Button frame
         button_frame = ctk.CTkFrame(self)
@@ -34,20 +34,6 @@ class InputTab(ctk.CTkFrame):
             text="Generate Processes",
             command=self.on_generate
         ).pack(side="left")
-
-        ctk.CTkButton(
-            button_frame,
-            text="Run Algorithm",
-            command=self.on_run
-        ).pack(side="left", padx=10)
-
-        # Algorithm dropdown
-        self.algorithm_menu = ctk.CTkOptionMenu(
-            button_frame,
-            values=["FCFS", "Round Robin", "Preemptive SRTF", "Priority Scheduling"],
-            variable=self.algorithm_var
-        )
-        self.algorithm_menu.pack(side="left")
 
         # Now create your Treeview
         self.tree = ttk.Treeview(
@@ -79,17 +65,39 @@ class InputTab(ctk.CTkFrame):
                         f"{priorities[i]}")
             )
 
-    def get_selected_algorithm(self) -> str:
-        return self.algorithm_var.get()
 
 
 class ResultsTab(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, on_run: Callable, **kwargs):
         super().__init__(master, **kwargs)
-        self.pack(fill="both", expand=True)
+        self.on_run = on_run
+        self.algorithm_var = ctk.StringVar(value="FCFS")
         self.create_widgets()
+        self.pack(fill="both", expand=True)
     
     def create_widgets(self):
+        # Create title
+        create_title(self, "Scheduling Results")
+
+        # Button frame
+        button_frame = ctk.CTkFrame(self)
+        button_frame.pack(pady=10)
+
+        # Button
+        ctk.CTkButton(
+            button_frame,
+            text="Run Algorithm",
+            command=self.on_run
+        ).pack(side="left", padx=10)
+
+        # Algorithm dropdown
+        self.algorithm_menu = ctk.CTkOptionMenu(
+            button_frame,
+            values=ALGORITHMS,
+            variable=self.algorithm_var
+        )
+        self.algorithm_menu.pack(side="left")
+        
         # Results table
         self.tree = ttk.Treeview(
             self,
@@ -122,14 +130,46 @@ class ResultsTab(ctk.CTkFrame):
             text=f"Average Turnaround: {avg_tat:.2f} | Average Waiting: {avg_wt:.2f}"
         )
 
+    def get_selected_algorithm(self) -> str:
+        return self.algorithm_var.get()
+    
+    # def set_selected_algorithm(self, algorithm: str):
+    #     self.algorithm_var.set(algorithm)
+
 
 class VisualizationTab(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, algorith_var: ctk.StringVar, on_run: Callable, **kwargs):
         super().__init__(master, **kwargs)
-        self.pack(fill="both", expand=True)
+        self.on_run = on_run
+        self.algorithm_var = algorith_var
         self.create_widgets()
+        self.pack(fill="both", expand=True)
     
     def create_widgets(self):
+        # Create title
+        create_title(self, "Process Execution Timeline")
+
+        # Button frame
+        button_frame = ctk.CTkFrame(self)
+        button_frame.pack(pady=10)
+
+        # Button
+        ctk.CTkButton(
+            button_frame,
+            text="Run Algorithm",
+            command=self.on_run
+        ).pack(side="left", padx=10)
+
+        # Algorithm dropdown
+        self.algorithm_menu = ctk.CTkOptionMenu(
+            button_frame,
+            values=ALGORITHMS,
+            variable=self.algorithm_var # i wanna use it here
+        )
+        self.algorithm_menu.pack(side="left")
+
+        
+        # Main Frame
         self.figure = plt.Figure(figsize=(10, 5))
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
@@ -161,17 +201,12 @@ class ComparisonTab(ctk.CTkFrame):
         self.create_widgets()
     
     def create_widgets(self):
+        # Create title
+        create_title(self, "Algorithm Comparison")
+
         # Main frame
         main_frame = ctk.CTkFrame(self)
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
-        
-        # Title
-        title_label = ctk.CTkLabel(
-            main_frame,
-            text="Algorithm Comparison",
-            font=ctk.CTkFont(size=18, weight="bold")
-        )
-        title_label.pack(pady=10)
         
         # Results table
         self.results_table = ttk.Treeview(
