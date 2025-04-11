@@ -336,7 +336,7 @@ class ComparisonTab(ctk.CTkFrame):
         
         # Configure chart
         ax.set_xticks([p + width/2 for p in x])
-        ax.set_xticklabels(algorithms, rotation=45, ha='right', color='white')
+        ax.set_xticklabels(algorithms, ha='center', color='white')
         ax.set_ylabel('Time', color='white')
         ax.set_title("Algorithm Performance Comparison", color='white')
         
