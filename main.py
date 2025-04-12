@@ -189,4 +189,4 @@ class ProcessSchedulerApp(ctk.CTk):
 
 if __name__ == "__main__":
     app = ProcessSchedulerApp()  # Create application instance
-    app.mainloop()  # Start the event loop
+    app.mainloop()  # Start the event loop 
