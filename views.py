@@ -361,4 +361,4 @@ class ComparisonTab(ctk.CTkFrame):
         ax.grid(True, linestyle='--', alpha=0.6, color='#3b3b3b')
         
         plt.tight_layout()
-        self.canvas.draw()
+        self.canvas.draw() 
