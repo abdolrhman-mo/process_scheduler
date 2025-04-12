@@ -131,4 +131,4 @@ def configure_treeview_styles(tree):
     # Center align all columns
     for col in tree["columns"]:
         tree.column(col, anchor="center")
-        tree.heading(col, anchor="center")
+        tree.heading(col, anchor="center") 
